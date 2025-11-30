@@ -1,0 +1,185 @@
+@* File Upload Component with Drag & Drop *@
+@inject IJSRuntime JS
+
+<div class="mb-6">
+    <label class="block text-sm font-semibold text-gray-700 mb-2">
+        @Label
+        @if (Required)
+        {
+            <span class="required-asterisk">*</span>
+        }
+    </label>
+
+    <div class="@GetUploadZoneClass()" 
+         @ondragenter="HandleDragEnter"
+         @ondragleave="HandleDragLeave"
+         @ondragover:preventDefault
+         @ondrop="HandleDrop"
+         @onclick="TriggerFileInput">
+        
+        <input type="file" 
+               id="@InputId" 
+               class="hidden" 
+               @ref="fileInput"
+               @onchange="HandleFileSelected"
+               accept="@AcceptedFileTypes"
+               multiple="@AllowMultiple" />
+
+        <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <p class="text-sm text-gray-600 mb-1">
+                <span class="font-semibold text-uwc-navy">Click to upload</span> or drag and drop
+            </p>
+            <p class="text-xs text-gray-500">@AllowedTypesText (@MaxFileSizeText max)</p>
+        </div>
+    </div>
+
+    @if (IsUploading)
+    {
+        <div class="file-upload-progress">
+            <div class="file-upload-progress-bar" style="width: @(UploadProgress)%"></div>
+        </div>
+        <p class="text-xs text-gray-600 mt-2 text-center">Uploading... @UploadProgress%</p>
+    }
+
+    @if (UploadedFiles.Any())
+    {
+        <div class="mt-4 space-y-2">
+            @foreach (var file in UploadedFiles)
+            {
+                <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                    <div class="flex items-center gap-3 flex-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-uwc-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">@file.FileName</p>
+                            <p class="text-xs text-gray-500">@FormatFileSize(file.FileSize)</p>
+                        </div>
+                    </div>
+                    <button 
+                        @onclick="() => RemoveFile(file)"
+                        class="p-1 hover:bg-red-100 rounded transition-colors"
+                        aria-label="Remove file">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            }
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <p class="error-text mt-2">@ErrorMessage</p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = "Upload Documents";
+
+    [Parameter]
+    public bool Required { get; set; } = false;
+
+    [Parameter]
+    public bool AllowMultiple { get; set; } = true;
+
+    [Parameter]
+    public string AcceptedFileTypes { get; set; } = ".pdf,.doc,.docx,.jpg,.jpeg,.png";
+
+    [Parameter]
+    public long MaxFileSize { get; set; } = 5 * 1024 * 1024; // 5MB
+
+    [Parameter]
+    public List<Models.UploadedDocument> UploadedFiles { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<List<Models.UploadedDocument>> UploadedFilesChanged { get; set; }
+
+    private ElementReference fileInput;
+    private string InputId = Guid.NewGuid().ToString();
+    private bool IsDragOver = false;
+    private bool IsUploading = false;
+    private int UploadProgress = 0;
+    private string ErrorMessage = string.Empty;
+
+    private string AllowedTypesText => AcceptedFileTypes.Replace(".", "").ToUpper();
+    private string MaxFileSizeText => FormatFileSize(MaxFileSize);
+
+    private async Task TriggerFileInput()
+    {
+        await JS.InvokeVoidAsync("eval", $"document.getElementById('{InputId}').click()");
+    }
+
+    private async Task HandleFileSelected(ChangeEventArgs e)
+    {
+        var files = await JS.InvokeAsync<string>("eval", 
+            $"Array.from(document.getElementById('{InputId}').files).map(f => {{ return {{ name: f.name, size: f.size }}; }})");
+        
+        // In a real implementation, you would process the files here
+        // For now, we'll simulate the upload
+        await SimulateFileUpload();
+    }
+
+    private void HandleDragEnter()
+    {
+        IsDragOver = true;
+    }
+
+    private void HandleDragLeave()
+    {
+        IsDragOver = false;
+    }
+
+    private async Task HandleDrop()
+    {
+        IsDragOver = false;
+        // Handle dropped files
+        await SimulateFileUpload();
+    }
+
+    private async Task SimulateFileUpload()
+    {
+        IsUploading = true;
+        ErrorMessage = string.Empty;
+
+        for (int i = 0; i <= 100; i += 10)
+        {
+            UploadProgress = i;
+            StateHasChanged();
+            await Task.Delay(100);
+        }
+
+        IsUploading = false;
+        StateHasChanged();
+    }
+
+    private async Task RemoveFile(Models.UploadedDocument file)
+    {
+        UploadedFiles.Remove(file);
+        await UploadedFilesChanged.InvokeAsync(UploadedFiles);
+    }
+
+    private string GetUploadZoneClass()
+    {
+        var baseClass = "file-upload-zone";
+        return IsDragOver ? $"{baseClass} drag-over" : baseClass;
+    }
+
+    private string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        double len = bytes;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
+    }
+}

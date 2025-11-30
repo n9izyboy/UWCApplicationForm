@@ -1,0 +1,32 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# .NET Build outputs
+bin/
+obj/
+publish/
+
+# User-specific files
+*.user
+*.suo
+*.cache
+*.rsuser
+*.userosscache
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# TypeScript compiled files (built in CI/CD)
+wwwroot/js/*.js
+wwwroot/js/*.js.map
+wwwroot/js/*.d.ts
+
+# OS
+.DS_Store
+Thumbs.db

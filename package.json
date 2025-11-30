@@ -1,0 +1,13 @@
+{
+  "name": "uwc-application-form",
+  "version": "1.0.0",
+  "description": "University of Western Cape - Modern Application Form",
+  "scripts": {
+    "build:ts": "tsc",
+    "watch:ts": "tsc --watch",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

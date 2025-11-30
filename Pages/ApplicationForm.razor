@@ -1,0 +1,950 @@
+@page "/"
+@inject FormStateService FormState
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>UWC Application Form</PageTitle>
+
+<!-- Header -->
+<HeaderSection 
+    ApplicantName="@GetApplicantName()"
+    ShowCloseButton="true"
+    OnClose="HandleClose" />
+
+<!-- Banner -->
+<BannerComponent 
+    Title="Your Future Starts Here - Apply to UWC"
+    Message="Complete your application today and take the first step towards excellence" />
+
+<!-- Main Container -->
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    
+    <!-- Progress Indicator -->
+    <ProgressIndicator 
+        CurrentSection="@FormState.CurrentSection"
+        TotalSections="10"
+        CompletionPercentage="@FormState.GetCompletionPercentage()"
+        SectionNames="@FormStateService.GetSectionNames()"
+        CompletedSections="@GetCompletedSections()"
+        LastSavedText="@GetLastSavedText()"
+        OnSectionChanged="HandleSectionChange" />
+
+    <!-- Breadcrumb Navigation -->
+    <FormNavigationBreadcrumb 
+        CurrentSection="@FormState.CurrentSection"
+        SectionNames="@FormStateService.GetSectionNames()"
+        CompletedSections="@GetCompletedSections()"
+        OnSectionChanged="HandleSectionChange" />
+
+    <!-- Form Container -->
+    <EditForm Model="@FormState.CurrentFormData" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        
+        <div id="form-sections-container">
+            
+            <!-- Section 1: Application Details -->
+            @if (FormState.CurrentSection == 0)
+            {
+                <FormSectionContainer 
+                    SectionIndex="0"
+                    Title="Application Details"
+                    Description="Please provide your personal information"
+                    IsVisible="true"
+                    AnimationDirection="@animationDirection">
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                            Application Type <span class="required-asterisk">*</span>
+                        </label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" 
+                                       class="custom-radio" 
+                                       name="applicationType" 
+                                       value="Undergraduate"
+                                       checked="@(FormState.CurrentFormData.ApplicationType == "Undergraduate")"
+                                       @onchange="@(() => UpdateApplicationType("Undergraduate"))" />
+                                <span>Undergraduate</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" 
+                                       class="custom-radio" 
+                                       name="applicationType" 
+                                       value="Postgraduate"
+                                       checked="@(FormState.CurrentFormData.ApplicationType == "Postgraduate")"
+                                       @onchange="@(() => UpdateApplicationType("Postgraduate"))" />
+                                <span>Postgraduate</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                            Identification Type <span class="required-asterisk">*</span>
+                        </label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" 
+                                       class="custom-radio" 
+                                       name="identificationType" 
+                                       value="SA ID Number"
+                                       checked="@(FormState.CurrentFormData.IdentificationType == "SA ID Number")"
+                                       @onchange="@(() => UpdateIdentificationType("SA ID Number"))" />
+                                <span>SA ID Number</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" 
+                                       class="custom-radio" 
+                                       name="identificationType" 
+                                       value="Foreign Passport"
+                                       checked="@(FormState.CurrentFormData.IdentificationType == "Foreign Passport")"
+                                       @onchange="@(() => UpdateIdentificationType("Foreign Passport"))" />
+                                <span>Foreign Passport</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <InputFloating 
+                        Label="@(FormState.CurrentFormData.IdentificationType == "SA ID Number" ? "ID Number" : "Passport Number")"
+                        @bind-Value="FormState.CurrentFormData.IdentificationNumber"
+                        Required="true"
+                        HelperText="@(FormState.CurrentFormData.IdentificationType == "SA ID Number" ? "13-digit SA ID number" : "Passport number")" />
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <InputFloating 
+                            Label="First Name"
+                            @bind-Value="FormState.CurrentFormData.FirstName"
+                            Required="true" />
+                        
+                        <InputFloating 
+                            Label="Last Name"
+                            @bind-Value="FormState.CurrentFormData.LastName"
+                            Required="true" />
+                    </div>
+
+                    <InputFloating 
+                        Label="Middle Name"
+                        @bind-Value="FormState.CurrentFormData.MiddleName"
+                        Required="false" />
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="floating-label-group">
+                            <input type="date" 
+                                   class="floating-label-input" 
+                                   placeholder=" "
+                                   @bind="FormState.CurrentFormData.DateOfBirth" />
+                            <label class="floating-label">Date of Birth <span class="required-asterisk">*</span></label>
+                        </div>
+
+                        <div class="floating-label-group">
+                            <select class="floating-label-input" 
+                                    @bind="FormState.CurrentFormData.Gender">
+                                <option value="">Select...</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
+                            </select>
+                            <label class="floating-label">Gender <span class="required-asterisk">*</span></label>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                            Have you studied at UWC before? <span class="required-asterisk">*</span>
+                        </label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" 
+                                       class="custom-radio" 
+                                       name="hasStudiedAtUWC" 
+                                       checked="@FormState.CurrentFormData.HasStudiedAtUWCBefore"
+                                       @onchange="@(() => FormState.UpdateFormData(m => m.HasStudiedAtUWCBefore = true))" />
+                                <span>Yes</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" 
+                                       class="custom-radio" 
+                                       name="hasStudiedAtUWC" 
+                                       checked="@(!FormState.CurrentFormData.HasStudiedAtUWCBefore)"
+                                       @onchange="@(() => FormState.UpdateFormData(m => m.HasStudiedAtUWCBefore = false))" />
+                                <span>No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    @if (FormState.CurrentFormData.HasStudiedAtUWCBefore)
+                    {
+                        <div class="slide-in-right">
+                            <InputFloating 
+                                Label="Previous Student Number"
+                                @bind-Value="FormState.CurrentFormData.PreviousStudentNumber"
+                                Required="false" />
+                        </div>
+                    }
+
+                </FormSectionContainer>
+            }
+
+            <!-- Section 2: Academic Background -->
+            @if (FormState.CurrentSection == 1)
+            {
+                <FormSectionContainer 
+                    SectionIndex="1"
+                    Title="Academic Background"
+                    Description="Tell us about your educational history"
+                    IsVisible="true"
+                    AnimationDirection="@animationDirection">
+                    
+                    <div class="floating-label-group">
+                        <select class="floating-label-input" 
+                                @bind="FormState.CurrentFormData.HighestQualification">
+                            <option value="">Select...</option>
+                            <option value="Matric/Grade 12">Matric/Grade 12</option>
+                            <option value="National Certificate">National Certificate</option>
+                            <option value="Diploma">Diploma</option>
+                            <option value="Bachelor's Degree">Bachelor's Degree</option>
+                            <option value="Honours Degree">Honours Degree</option>
+                            <option value="Master's Degree">Master's Degree</option>
+                            <option value="Doctoral Degree">Doctoral Degree</option>
+                        </select>
+                        <label class="floating-label">Highest Qualification <span class="required-asterisk">*</span></label>
+                    </div>
+
+                    <InputFloating 
+                        Label="School/Institution Name"
+                        @bind-Value="FormState.CurrentFormData.SchoolName"
+                        Required="false" />
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="floating-label-group">
+                            <input type="number" 
+                                   class="floating-label-input" 
+                                   placeholder=" "
+                                   min="1900"
+                                   max="2100"
+                                   @bind="FormState.CurrentFormData.YearCompleted" />
+                            <label class="floating-label">Year Completed</label>
+                        </div>
+
+                        <div class="floating-label-group">
+                            <input type="number" 
+                                   class="floating-label-input" 
+                                   placeholder=" "
+                                   min="0"
+                                   max="100"
+                                   step="0.1"
+                                   @bind="FormState.CurrentFormData.AveragePercentage" />
+                            <label class="floating-label">Average Percentage</label>
+                        </div>
+                    </div>
+
+                </FormSectionContainer>
+            }
+
+            <!-- Section 3: Contact Information -->
+            @if (FormState.CurrentSection == 2)
+            {
+                <FormSectionContainer 
+                    SectionIndex="2"
+                    Title="Contact Information"
+                    Description="How can we reach you?"
+                    IsVisible="true"
+                    AnimationDirection="@animationDirection">
+                    
+                    <InputFloating 
+                        Label="Email Address"
+                        InputType="email"
+                        @bind-Value="FormState.CurrentFormData.Email"
+                        Required="true"
+                        HelperText="We'll use this for important updates" />
+
+                    <InputFloating 
+                        Label="Confirm Email Address"
+                        InputType="email"
+                        @bind-Value="FormState.CurrentFormData.ConfirmEmail"
+                        Required="true" />
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <InputFloating 
+                            Label="Phone Number"
+                            InputType="tel"
+                            @bind-Value="FormState.CurrentFormData.PhoneNumber"
+                            Required="true"
+                            HelperText="Include country code if outside SA" />
+
+                        <InputFloating 
+                            Label="Alternative Phone"
+                            InputType="tel"
+                            @bind-Value="FormState.CurrentFormData.AlternativePhone"
+                            Required="false" />
+                    </div>
+
+                    <InputFloating 
+                        Label="Street Address"
+                        @bind-Value="FormState.CurrentFormData.StreetAddress"
+                        Required="true" />
+
+                    <InputFloating 
+                        Label="Address Line 2"
+                        @bind-Value="FormState.CurrentFormData.AddressLine2"
+                        Required="false"
+                        HelperText="Apartment, suite, unit, etc." />
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <InputFloating 
+                            Label="City"
+                            @bind-Value="FormState.CurrentFormData.City"
+                            Required="true" />
+
+                        <div class="floating-label-group">
+                            <select class="floating-label-input" 
+                                    @bind="FormState.CurrentFormData.Province">
+                                <option value="">Select...</option>
+                                <option value="Western Cape">Western Cape</option>
+                                <option value="Eastern Cape">Eastern Cape</option>
+                                <option value="Northern Cape">Northern Cape</option>
+                                <option value="Free State">Free State</option>
+                                <option value="Gauteng">Gauteng</option>
+                                <option value="KwaZulu-Natal">KwaZulu-Natal</option>
+                                <option value="Limpopo">Limpopo</option>
+                                <option value="Mpumalanga">Mpumalanga</option>
+                                <option value="North West">North West</option>
+                            </select>
+                            <label class="floating-label">Province <span class="required-asterisk">*</span></label>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <InputFloating 
+                            Label="Postal Code"
+                            @bind-Value="FormState.CurrentFormData.PostalCode"
+                            Required="true" />
+
+                        <InputFloating 
+                            Label="Country"
+                            @bind-Value="FormState.CurrentFormData.Country"
+                            Required="true" />
+                    </div>
+
+                </FormSectionContainer>
+            }
+
+            <!-- Section 4: Study Preferences -->
+            @if (FormState.CurrentSection == 3)
+            {
+                <FormSectionContainer 
+                    SectionIndex="3"
+                    Title="Study Preferences"
+                    Description="What would you like to study?"
+                    IsVisible="true"
+                    AnimationDirection="@animationDirection">
+                    
+                    <div class="floating-label-group">
+                        <select class="floating-label-input" 
+                                @bind="FormState.CurrentFormData.FirstChoiceProgram">
+                            <option value="">Select...</option>
+                            <option value="Bachelor of Arts">Bachelor of Arts</option>
+                            <option value="Bachelor of Science">Bachelor of Science</option>
+                            <option value="Bachelor of Commerce">Bachelor of Commerce</option>
+                            <option value="Bachelor of Education">Bachelor of Education</option>
+                            <option value="Bachelor of Engineering">Bachelor of Engineering</option>
+                            <option value="Bachelor of Law">Bachelor of Law</option>
+                            <option value="Bachelor of Nursing">Bachelor of Nursing</option>
+                        </select>
+                        <label class="floating-label">First Choice Program <span class="required-asterisk">*</span></label>
+                    </div>
+
+                    <div class="floating-label-group">
+                        <select class="floating-label-input" 
+                                @bind="FormState.CurrentFormData.SecondChoiceProgram">
+                            <option value="">Select...</option>
+                            <option value="Bachelor of Arts">Bachelor of Arts</option>
+                            <option value="Bachelor of Science">Bachelor of Science</option>
+                            <option value="Bachelor of Commerce">Bachelor of Commerce</option>
+                            <option value="Bachelor of Education">Bachelor of Education</option>
+                        </select>
+                        <label class="floating-label">Second Choice Program</label>
+                    </div>
+
+                    <div class="floating-label-group">
+                        <select class="floating-label-input" 
+                                @bind="FormState.CurrentFormData.ThirdChoiceProgram">
+                            <option value="">Select...</option>
+                            <option value="Bachelor of Arts">Bachelor of Arts</option>
+                            <option value="Bachelor of Science">Bachelor of Science</option>
+                            <option value="Bachelor of Commerce">Bachelor of Commerce</option>
+                        </select>
+                        <label class="floating-label">Third Choice Program</label>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                            Study Mode <span class="required-asterisk">*</span>
+                        </label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" 
+                                       class="custom-radio" 
+                                       name="studyMode" 
+                                       value="Full-time"
+                                       checked="@(FormState.CurrentFormData.StudyMode == "Full-time")"
+                                       @onchange="@(() => FormState.UpdateFormData(m => m.StudyMode = "Full-time"))" />
+                                <span>Full-time</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" 
+                                       class="custom-radio" 
+                                       name="studyMode" 
+                                       value="Part-time"
+                                       checked="@(FormState.CurrentFormData.StudyMode == "Part-time")"
+                                       @onchange="@(() => FormState.UpdateFormData(m => m.StudyMode = "Part-time"))" />
+                                <span>Part-time</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="floating-label-group">
+                        <input type="number" 
+                               class="floating-label-input" 
+                               placeholder=" "
+                               min="2024"
+                               max="2030"
+                               @bind="FormState.CurrentFormData.IntendedStartYear" />
+                        <label class="floating-label">Intended Start Year <span class="required-asterisk">*</span></label>
+                    </div>
+
+                </FormSectionContainer>
+            }
+
+            <!-- Section 5: Documents Upload -->
+            @if (FormState.CurrentSection == 4)
+            {
+                <FormSectionContainer 
+                    SectionIndex="4"
+                    Title="Documents Upload"
+                    Description="Please upload required documents"
+                    IsVisible="true"
+                    AnimationDirection="@animationDirection">
+                    
+                    <FileUpload 
+                        Label="Upload Certified ID/Passport Copy"
+                        Required="true"
+                        AllowMultiple="false"
+                        AcceptedFileTypes=".pdf,.jpg,.jpeg,.png"
+                        @bind-UploadedFiles="FormState.CurrentFormData.UploadedDocuments" />
+
+                    <FileUpload 
+                        Label="Upload Academic Transcripts"
+                        Required="true"
+                        AllowMultiple="true"
+                        AcceptedFileTypes=".pdf"
+                        @bind-UploadedFiles="FormState.CurrentFormData.UploadedDocuments" />
+
+                    <FileUpload 
+                        Label="Upload Proof of Residence"
+                        Required="false"
+                        AllowMultiple="false"
+                        AcceptedFileTypes=".pdf,.jpg,.jpeg,.png"
+                        @bind-UploadedFiles="FormState.CurrentFormData.UploadedDocuments" />
+
+                </FormSectionContainer>
+            }
+
+            <!-- Section 6: Previous Studies -->
+            @if (FormState.CurrentSection == 5)
+            {
+                <FormSectionContainer 
+                    SectionIndex="5"
+                    Title="Previous Studies"
+                    Description="List any previous tertiary education"
+                    IsVisible="true"
+                    AnimationDirection="@animationDirection">
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-4">
+                            If you have attended any other tertiary institutions, please provide details below.
+                        </p>
+                        
+                        <button 
+                            type="button"
+                            class="btn-secondary"
+                            @onclick="AddPreviousStudy">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Add Previous Study
+                        </button>
+                    </div>
+
+                    @if (FormState.CurrentFormData.PreviousStudies.Any())
+                    {
+                        <div class="space-y-4">
+                            @for (int i = 0; i < FormState.CurrentFormData.PreviousStudies.Count; i++)
+                            {
+                                var index = i;
+                                var study = FormState.CurrentFormData.PreviousStudies[index];
+                                
+                                <div class="bg-white border-2 border-gray-200 rounded-lg p-4">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h4 class="font-semibold text-uwc-navy">Previous Study @(index + 1)</h4>
+                                        <button 
+                                            type="button"
+                                            class="text-red-600 hover:text-red-800"
+                                            @onclick="() => RemovePreviousStudy(index)">
+                                            Remove
+                                        </button>
+                                    </div>
+                                    
+                                    <InputFloating 
+                                        Label="Institution Name"
+                                        @bind-Value="study.InstitutionName"
+                                        Required="true" />
+                                    
+                                    <InputFloating 
+                                        Label="Qualification"
+                                        @bind-Value="study.Qualification"
+                                        Required="true" />
+                                    
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <div class="floating-label-group">
+                                            <input type="number" 
+                                                   class="floating-label-input" 
+                                                   placeholder=" "
+                                                   @bind="study.StartYear" />
+                                            <label class="floating-label">Start Year <span class="required-asterisk">*</span></label>
+                                        </div>
+                                        
+                                        <div class="floating-label-group">
+                                            <input type="number" 
+                                                   class="floating-label-input" 
+                                                   placeholder=" "
+                                                   @bind="study.EndYear" />
+                                            <label class="floating-label">End Year</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <label class="flex items-center gap-2 mt-4">
+                                        <input type="checkbox" 
+                                               class="custom-checkbox" 
+                                               @bind="study.Completed" />
+                                        <span>Completed</span>
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                </FormSectionContainer>
+            }
+
+            <!-- Section 7: Financial Information -->
+            @if (FormState.CurrentSection == 6)
+            {
+                <FormSectionContainer 
+                    SectionIndex="6"
+                    Title="Financial Information"
+                    Description="How do you plan to fund your studies?"
+                    IsVisible="true"
+                    AnimationDirection="@animationDirection">
+                    
+                    <div class="floating-label-group">
+                        <select class="floating-label-input" 
+                                @bind="FormState.CurrentFormData.FundingOption">
+                            <option value="">Select...</option>
+                            <option value="Self-funded">Self-funded</option>
+                            <option value="NSFAS">NSFAS</option>
+                            <option value="Bursary">Bursary</option>
+                            <option value="Loan">Loan</option>
+                            <option value="Sponsor">Sponsor</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <label class="floating-label">Funding Option <span class="required-asterisk">*</span></label>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" 
+                                   class="custom-checkbox" 
+                                   @bind="FormState.CurrentFormData.ApplyingForNSFAS" />
+                            <span>I am applying for NSFAS funding</span>
+                        </label>
+
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" 
+                                   class="custom-checkbox" 
+                                   @bind="FormState.CurrentFormData.ApplyingForBursary" />
+                            <span>I am applying for a bursary</span>
+                        </label>
+                    </div>
+
+                    @if (FormState.CurrentFormData.ApplyingForBursary)
+                    {
+                        <div class="slide-in-right">
+                            <div class="floating-label-group">
+                                <textarea 
+                                    class="floating-label-input min-h-[100px]" 
+                                    placeholder=" "
+                                    @bind="FormState.CurrentFormData.BursaryDetails"></textarea>
+                                <label class="floating-label">Bursary Details</label>
+                            </div>
+                        </div>
+                    }
+
+                </FormSectionContainer>
+            }
+
+            <!-- Section 8: Emergency Contact -->
+            @if (FormState.CurrentSection == 7)
+            {
+                <FormSectionContainer 
+                    SectionIndex="7"
+                    Title="Emergency Contact"
+                    Description="Who should we contact in case of emergency?"
+                    IsVisible="true"
+                    AnimationDirection="@animationDirection">
+                    
+                    <InputFloating 
+                        Label="Emergency Contact Name"
+                        @bind-Value="FormState.CurrentFormData.EmergencyContactName"
+                        Required="true" />
+
+                    <InputFloating 
+                        Label="Relationship"
+                        @bind-Value="FormState.CurrentFormData.EmergencyContactRelationship"
+                        Required="true"
+                        HelperText="e.g., Parent, Sibling, Guardian" />
+
+                    <InputFloating 
+                        Label="Emergency Contact Phone"
+                        InputType="tel"
+                        @bind-Value="FormState.CurrentFormData.EmergencyContactPhone"
+                        Required="true" />
+
+                    <InputFloating 
+                        Label="Emergency Contact Address"
+                        @bind-Value="FormState.CurrentFormData.EmergencyContactAddress"
+                        Required="false" />
+
+                </FormSectionContainer>
+            }
+
+            <!-- Section 9: Additional Information -->
+            @if (FormState.CurrentSection == 8)
+            {
+                <FormSectionContainer 
+                    SectionIndex="8"
+                    Title="Additional Information"
+                    Description="Help us support you better"
+                    IsVisible="true"
+                    AnimationDirection="@animationDirection">
+                    
+                    <label class="flex items-center gap-2 mb-4">
+                        <input type="checkbox" 
+                               class="custom-checkbox" 
+                               @bind="FormState.CurrentFormData.HasDisability" />
+                        <span>I have a disability that may require support</span>
+                    </label>
+
+                    @if (FormState.CurrentFormData.HasDisability)
+                    {
+                        <div class="slide-in-right">
+                            <div class="floating-label-group">
+                                <textarea 
+                                    class="floating-label-input min-h-[100px]" 
+                                    placeholder=" "
+                                    @bind="FormState.CurrentFormData.DisabilityDetails"></textarea>
+                                <label class="floating-label">Please provide details</label>
+                            </div>
+                        </div>
+                    }
+
+                    <label class="flex items-center gap-2 mb-4">
+                        <input type="checkbox" 
+                               class="custom-checkbox" 
+                               @bind="FormState.CurrentFormData.RequiresAccommodation" />
+                        <span>I require on-campus accommodation</span>
+                    </label>
+
+                    @if (FormState.CurrentFormData.RequiresAccommodation)
+                    {
+                        <div class="slide-in-right">
+                            <div class="floating-label-group">
+                                <textarea 
+                                    class="floating-label-input min-h-[100px]" 
+                                    placeholder=" "
+                                    @bind="FormState.CurrentFormData.AccommodationDetails"></textarea>
+                                <label class="floating-label">Accommodation preferences or requirements</label>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="floating-label-group">
+                        <textarea 
+                            class="floating-label-input min-h-[150px]" 
+                            placeholder=" "
+                            @bind="FormState.CurrentFormData.AdditionalNotes"></textarea>
+                        <label class="floating-label">Additional Notes</label>
+                        <p class="helper-text">Anything else you'd like us to know?</p>
+                    </div>
+
+                </FormSectionContainer>
+            }
+
+            <!-- Section 10: Review & Submit -->
+            @if (FormState.CurrentSection == 9)
+            {
+                <FormSectionContainer 
+                    SectionIndex="9"
+                    Title="Review & Submit"
+                    Description="Please review your information before submitting"
+                    IsVisible="true"
+                    AnimationDirection="@animationDirection">
+                    
+                    <div class="bg-blue-50 border-l-4 border-uwc-navy p-4 mb-6">
+                        <h3 class="font-semibold text-uwc-navy mb-2">Application Summary</h3>
+                        <div class="space-y-2 text-sm">
+                            <p><strong>Name:</strong> @FormState.CurrentFormData.FirstName @FormState.CurrentFormData.LastName</p>
+                            <p><strong>Email:</strong> @FormState.CurrentFormData.Email</p>
+                            <p><strong>Application Type:</strong> @FormState.CurrentFormData.ApplicationType</p>
+                            <p><strong>First Choice:</strong> @FormState.CurrentFormData.FirstChoiceProgram</p>
+                            <p><strong>Completion:</strong> @FormState.GetCompletionPercentage()%</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <label class="flex items-start gap-3">
+                            <input type="checkbox" 
+                                   class="custom-checkbox mt-1" 
+                                   @bind="FormState.CurrentFormData.AgreeToTerms" />
+                            <span class="text-sm">
+                                I agree to the <a href="#" class="text-uwc-navy underline">terms and conditions</a> 
+                                and understand that providing false information may result in my application being rejected.
+                                <span class="required-asterisk">*</span>
+                            </span>
+                        </label>
+
+                        <label class="flex items-start gap-3">
+                            <input type="checkbox" 
+                                   class="custom-checkbox mt-1" 
+                                   @bind="FormState.CurrentFormData.ConfirmAccuracy" />
+                            <span class="text-sm">
+                                I confirm that all the information provided in this application is accurate and complete to the best of my knowledge.
+                                <span class="required-asterisk">*</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="bg-yellow-50 border-l-4 border-uwc-gold p-4 mt-6">
+                        <p class="text-sm">
+                            <strong>Note:</strong> Once submitted, you will receive a confirmation email with your application reference number. 
+                            You can track your application status using this reference.
+                        </p>
+                    </div>
+
+                </FormSectionContainer>
+            }
+
+        </div>
+
+        <!-- Navigation Buttons -->
+        <NavigationButtons 
+            ShowPrevious="@(FormState.CurrentSection > 0)"
+            IsLastSection="@(FormState.CurrentSection == 9)"
+            DisablePrevious="@isSubmitting"
+            DisableNext="@isSubmitting"
+            DisableSubmit="@(!CanSubmit())"
+            IsSubmitting="@isSubmitting"
+            OnPreviousClick="HandlePrevious"
+            OnNextClick="HandleNext"
+            OnSaveClick="HandleSave"
+            OnSubmitClick="HandleSubmit" />
+
+    </EditForm>
+</div>
+
+@code {
+    private string animationDirection = "right";
+    private bool isSubmitting = false;
+    private System.Threading.Timer? autoSaveTimer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load saved state
+        await FormState.LoadStateAsync();
+        
+        // Subscribe to state changes
+        FormState.OnStateChanged += StateHasChanged;
+        
+        // Setup auto-save every 30 seconds
+        autoSaveTimer = new System.Threading.Timer(async _ => 
+        {
+            await InvokeAsync(async () =>
+            {
+                if (FormState.HasUnsavedChanges)
+                {
+                    await FormState.SaveStateAsync();
+                    StateHasChanged();
+                }
+            });
+        }, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+    }
+
+    private string GetApplicantName()
+    {
+        if (!string.IsNullOrEmpty(FormState.CurrentFormData.FirstName))
+        {
+            return $"{FormState.CurrentFormData.FirstName} {FormState.CurrentFormData.LastName}".Trim();
+        }
+        return string.Empty;
+    }
+
+    private bool[] GetCompletedSections()
+    {
+        var completed = new bool[10];
+        for (int i = 0; i < 10; i++)
+        {
+            completed[i] = FormState.IsSectionCompleted(i);
+        }
+        return completed;
+    }
+
+    private string GetLastSavedText()
+    {
+        if (FormState.LastSaved.HasValue)
+        {
+            var timeSince = DateTime.Now - FormState.LastSaved.Value;
+            if (timeSince.TotalMinutes < 1)
+                return "Saved just now";
+            else if (timeSince.TotalMinutes < 60)
+                return $"Saved {(int)timeSince.TotalMinutes} minutes ago";
+            else
+                return $"Last saved: {FormState.LastSaved.Value:HH:mm}";
+        }
+        return string.Empty;
+    }
+
+    private async Task HandleSectionChange(int newSection)
+    {
+        animationDirection = newSection > FormState.CurrentSection ? "right" : "left";
+        FormState.NavigateToSection(newSection);
+        await JS.InvokeVoidAsync("FormHelpers.autoFocusFirstInput", "form-sections-container");
+        await JS.InvokeVoidAsync("FormHelpers.smoothScrollTo", "form-sections-container");
+    }
+
+    private async Task HandlePrevious()
+    {
+        animationDirection = "left";
+        FormState.NavigatePrevious();
+        await JS.InvokeVoidAsync("FormHelpers.autoFocusFirstInput", "form-sections-container");
+    }
+
+    private async Task HandleNext()
+    {
+        animationDirection = "right";
+        FormState.NavigateNext();
+        await JS.InvokeVoidAsync("FormHelpers.autoFocusFirstInput", "form-sections-container");
+    }
+
+    private async Task HandleSave()
+    {
+        var saved = await FormState.SaveStateAsync();
+        if (saved)
+        {
+            await JS.InvokeVoidAsync("FormHelpers.showToast", "Progress saved successfully!", "success", 3000);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("FormHelpers.showToast", "Failed to save progress", "error", 3000);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        // This is called when the form passes validation
+        await HandleSubmit();
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (!CanSubmit())
+        {
+            await JS.InvokeVoidAsync("FormHelpers.shakeElement", "form-sections-container");
+            await JS.InvokeVoidAsync("FormHelpers.showToast", "Please complete all required fields and agree to terms", "error", 5000);
+            return;
+        }
+
+        isSubmitting = true;
+        StateHasChanged();
+
+        try
+        {
+            // Simulate submission
+            await Task.Delay(2000);
+            
+            FormState.CurrentFormData.SubmittedDate = DateTime.Now;
+            await FormState.SaveStateAsync();
+            
+            // Show success animation
+            await JS.InvokeVoidAsync("FormHelpers.showConfetti");
+            await JS.InvokeVoidAsync("FormHelpers.showToast", "Application submitted successfully!", "success", 5000);
+            
+            // Clear form after successful submission
+            await Task.Delay(3000);
+            await FormState.ClearStateAsync();
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("FormHelpers.showToast", $"Error: {ex.Message}", "error", 5000);
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    private bool CanSubmit()
+    {
+        return FormState.CurrentFormData.AgreeToTerms && 
+               FormState.CurrentFormData.ConfirmAccuracy &&
+               !string.IsNullOrEmpty(FormState.CurrentFormData.FirstName) &&
+               !string.IsNullOrEmpty(FormState.CurrentFormData.LastName) &&
+               !string.IsNullOrEmpty(FormState.CurrentFormData.Email);
+    }
+
+    private async Task HandleClose()
+    {
+        if (FormState.HasUnsavedChanges)
+        {
+            await FormState.SaveStateAsync();
+        }
+        // Navigate away or show confirmation dialog
+    }
+
+    private void UpdateApplicationType(string type)
+    {
+        FormState.UpdateFormData(m => m.ApplicationType = type);
+    }
+
+    private void UpdateIdentificationType(string type)
+    {
+        FormState.UpdateFormData(m => m.IdentificationType = type);
+    }
+
+    private void AddPreviousStudy()
+    {
+        FormState.UpdateFormData(m => m.PreviousStudies.Add(new Models.PreviousStudy()));
+    }
+
+    private void RemovePreviousStudy(int index)
+    {
+        FormState.UpdateFormData(m => m.PreviousStudies.RemoveAt(index));
+    }
+
+    public void Dispose()
+    {
+        FormState.OnStateChanged -= StateHasChanged;
+        autoSaveTimer?.Dispose();
+    }
+}

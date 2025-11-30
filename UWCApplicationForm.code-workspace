@@ -1,0 +1,103 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.git": true,
+      "**/bin": true,
+      "**/obj": true,
+      "**/node_modules": true
+    },
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[csharp]": {
+      "editor.defaultFormatter": "ms-dotnettools.csharp"
+    },
+    "dotnet.defaultSolution": "UWCApplicationForm.csproj"
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-dotnettools.csharp",
+      "ms-dotnettools.csdevkit",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "bradlc.vscode-tailwindcss"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build TypeScript",
+        "type": "shell",
+        "command": "npm run build:ts",
+        "problemMatcher": ["$tsc"],
+        "group": "build"
+      },
+      {
+        "label": "Watch TypeScript",
+        "type": "shell",
+        "command": "npm run watch:ts",
+        "problemMatcher": ["$tsc-watch"],
+        "isBackground": true,
+        "group": "build"
+      },
+      {
+        "label": "Build Blazor",
+        "type": "shell",
+        "command": "dotnet build",
+        "problemMatcher": ["$msCompile"],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      },
+      {
+        "label": "Run Application",
+        "type": "shell",
+        "command": "dotnet run",
+        "problemMatcher": ["$msCompile"],
+        "group": "test"
+      },
+      {
+        "label": "Watch Blazor",
+        "type": "shell",
+        "command": "dotnet watch run",
+        "problemMatcher": ["$msCompile"],
+        "isBackground": true,
+        "group": "test"
+      },
+      {
+        "label": "Install Dependencies",
+        "type": "shell",
+        "command": "npm install; dotnet restore",
+        "problemMatcher": []
+      },
+      {
+        "label": "Build All",
+        "dependsOn": ["Build Blazor"],
+        "problemMatcher": []
+      }
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Launch Application",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "Build Blazor",
+        "program": "dotnet",
+        "args": ["run"],
+        "cwd": "${workspaceFolder}",
+        "stopAtEntry": false,
+        "console": "internalConsole"
+      }
+    ]
+  }
+}

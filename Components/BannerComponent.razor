@@ -1,0 +1,61 @@
+@* Dismissible Banner Component *@
+
+@if (!IsDismissed)
+{
+    <div class="@GetBannerClasses()" id="banner-component">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4 flex-1">
+                    <!-- Icon -->
+                    <div class="hidden sm:block">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-uwc-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                        </svg>
+                    </div>
+                    
+                    <!-- Message -->
+                    <div class="text-white">
+                        <h2 class="text-xl md:text-2xl font-bold">@Title</h2>
+                        <p class="text-sm md:text-base text-gray-200">@Message</p>
+                    </div>
+                </div>
+
+                <!-- Dismiss Button -->
+                <button 
+                    @onclick="DismissBanner" 
+                    class="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-all flex-shrink-0"
+                    aria-label="Dismiss banner">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Your Future Starts Here - Apply to UWC";
+
+    [Parameter]
+    public string Message { get; set; } = "Complete your application today and take the first step towards excellence";
+
+    [Parameter]
+    public bool IsVisible { get; set; } = true;
+
+    private bool IsDismissed { get; set; } = false;
+
+    private void DismissBanner()
+    {
+        IsDismissed = true;
+    }
+
+    private string GetBannerClasses()
+    {
+        var baseClasses = "bg-gradient-to-r from-uwc-navy to-blue-800 shadow-lg";
+        return IsDismissed ? $"{baseClasses} fade-out" : $"{baseClasses} fade-in";
+    }
+}

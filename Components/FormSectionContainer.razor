@@ -1,0 +1,48 @@
+@* Form Section Container with Transitions *@
+
+<div class="@GetContainerClass()" id="section-container-@SectionIndex">
+    <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-uwc-navy mb-2">@Title</h2>
+            @if (!string.IsNullOrEmpty(Description))
+            {
+                <p class="text-gray-600">@Description</p>
+            }
+        </div>
+
+        <div class="space-y-6">
+            @ChildContent
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int SectionIndex { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Description { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool IsVisible { get; set; } = true;
+
+    [Parameter]
+    public string AnimationDirection { get; set; } = "right"; // "right" or "left"
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string GetContainerClass()
+    {
+        if (!IsVisible)
+        {
+            return "hidden";
+        }
+
+        var animationClass = AnimationDirection == "left" ? "slide-in-left" : "slide-in-right";
+        return animationClass;
+    }
+}

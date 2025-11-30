@@ -1,0 +1,79 @@
+@* Form Navigation Breadcrumb Component *@
+
+<nav aria-label="Form navigation breadcrumb" class="bg-white shadow-sm rounded-lg p-4 mb-6">
+    <ol class="flex flex-wrap items-center gap-2 text-sm">
+        @for (int i = 0; i < SectionNames.Length; i++)
+        {
+            var index = i;
+            var isLast = i == SectionNames.Length - 1;
+            
+            <li class="flex items-center">
+                <button 
+                    @onclick="() => OnSectionClick(index)"
+                    class="@GetBreadcrumbClass(index)"
+                    disabled="@(index > CurrentSection + 1)">
+                    <span class="mr-2 font-semibold">@(index + 1).</span>
+                    <span class="hidden sm:inline">@SectionNames[index]</span>
+                    <span class="sm:hidden">@GetShortName(SectionNames[index])</span>
+                </button>
+                
+                @if (!isLast)
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                }
+            </li>
+        }
+    </ol>
+</nav>
+
+@code {
+    [Parameter]
+    public int CurrentSection { get; set; } = 0;
+
+    [Parameter]
+    public string[] SectionNames { get; set; } = Array.Empty<string>();
+
+    [Parameter]
+    public bool[] CompletedSections { get; set; } = Array.Empty<bool>();
+
+    [Parameter]
+    public EventCallback<int> OnSectionChanged { get; set; }
+
+    private string GetBreadcrumbClass(int index)
+    {
+        var baseClass = "px-3 py-2 rounded-lg transition-all";
+        
+        if (index == CurrentSection)
+        {
+            return $"{baseClass} bg-uwc-navy text-white font-semibold";
+        }
+        
+        if (CompletedSections.Length > index && CompletedSections[index])
+        {
+            return $"{baseClass} bg-green-100 text-green-800 hover:bg-green-200";
+        }
+
+        if (index < CurrentSection)
+        {
+            return $"{baseClass} bg-gray-100 text-gray-700 hover:bg-gray-200";
+        }
+
+        return $"{baseClass} bg-gray-50 text-gray-400 cursor-not-allowed";
+    }
+
+    private string GetShortName(string fullName)
+    {
+        // Return first word for mobile view
+        return fullName.Split(' ')[0];
+    }
+
+    private async Task OnSectionClick(int index)
+    {
+        if (index <= CurrentSection + 1 && OnSectionChanged.HasDelegate)
+        {
+            await OnSectionChanged.InvokeAsync(index);
+        }
+    }
+}

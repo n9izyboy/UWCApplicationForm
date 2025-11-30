@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>UWC Application Form</title>
+    <base href="/" />
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'uwc-navy': '#1e3a8a',
+                        'uwc-gold': '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS -->
+    <link href="css/app.css" rel="stylesheet" />
+    
+    <!-- Blazor CSS -->
+    <link href="UWCApplicationForm.styles.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="app">
+        <div class="flex items-center justify-center min-h-screen bg-uwc-navy">
+            <div class="text-center">
+                <svg class="animate-spin h-16 w-16 text-uwc-gold mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-white text-xl">Loading UWC Application...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui" class="fixed bottom-0 left-0 right-0 bg-red-600 text-white p-4 shadow-lg z-50" style="display: none;">
+        <span class="inline-block mr-4">An unhandled error has occurred.</span>
+        <a href="" class="underline">Reload</a>
+        <button class="float-right text-2xl font-bold" onclick="document.getElementById('blazor-error-ui').style.display='none'">&times;</button>
+    </div>
+
+    <script src="_framework/blazor.webassembly.js"></script>
+    
+    <!-- TypeScript compiled modules -->
+    <script type="module" src="js/swipeDetection.js"></script>
+    <script type="module" src="js/localStorageHelper.js"></script>
+    <script type="module" src="js/formHelpers.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
