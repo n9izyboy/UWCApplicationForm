@@ -9,7 +9,8 @@
 <HeaderSection 
     ApplicantName="@GetApplicantName()"
     ShowCloseButton="true"
-    OnClose="HandleClose" />
+    OnClose="HandleClose"
+    OnDarkModeChanged="HandleDarkModeChanged" />
 
 <!-- Banner -->
 <BannerComponent 
@@ -921,6 +922,18 @@
         }
         // Navigate away or show confirmation dialog
     }
+
+    private async Task HandleDarkModeChanged(bool isDarkMode)
+    {
+        // Update the layout dark mode class
+        if (Layout is MainLayout mainLayout)
+        {
+            mainLayout.SetDarkMode(isDarkMode);
+        }
+    }
+
+    [CascadingParameter]
+    public MainLayout? Layout { get; set; }
 
     private void UpdateApplicationType(string type)
     {

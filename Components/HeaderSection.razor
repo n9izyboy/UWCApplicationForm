@@ -4,7 +4,7 @@
     <div class="container mx-auto px-4 py-4 flex items-center justify-between">
         <!-- UWC Logo -->
         <div class="flex items-center gap-4">
-            <div class="flex items-center justify-center bg-white rounded-lg p-1.5">
+            <div class="flex items-center justify-center bg-white rounded-lg p-1.5 gold-glow">
                 <img src="images/uwc-logo.jpeg" alt="University of Western Cape" class="h-14 w-14 object-contain" />
             </div>
             <div class="hidden md:block">
@@ -15,6 +15,8 @@
 
         <!-- Navigation -->
         <div class="flex items-center gap-4">
+            <DarkModeToggle OnDarkModeChanged="HandleDarkModeChanged" />
+            
             @if (!string.IsNullOrEmpty(ApplicantName))
             {
                 <div class="hidden sm:block text-right">
@@ -47,4 +49,12 @@
 
     [Parameter]
     public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnDarkModeChanged { get; set; }
+
+    private async Task HandleDarkModeChanged(bool isDarkMode)
+    {
+        await OnDarkModeChanged.InvokeAsync(isDarkMode);
+    }
 }

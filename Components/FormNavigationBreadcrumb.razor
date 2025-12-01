@@ -1,6 +1,6 @@
 @* Form Navigation Breadcrumb Component *@
 
-<nav aria-label="Form navigation breadcrumb" class="bg-white shadow-sm rounded-lg p-4 mb-6">
+<nav aria-label="Form navigation breadcrumb" class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-4 mb-6 transition-smooth">
     <ol class="flex flex-wrap items-center gap-2 text-sm">
         @for (int i = 0; i < SectionNames.Length; i++)
         {
@@ -19,7 +19,7 @@
                 
                 @if (!isLast)
                 {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-2 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 }
@@ -47,20 +47,20 @@
         
         if (index == CurrentSection)
         {
-            return $"{baseClass} bg-uwc-navy text-white font-semibold";
+            return $"{baseClass} bg-uwc-navy text-white font-semibold gold-glow";
         }
         
         if (CompletedSections.Length > index && CompletedSections[index])
         {
-            return $"{baseClass} bg-green-100 text-green-800 hover:bg-green-200";
+            return $"{baseClass} bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800";
         }
 
         if (index < CurrentSection)
         {
-            return $"{baseClass} bg-gray-100 text-gray-700 hover:bg-gray-200";
+            return $"{baseClass} bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600";
         }
 
-        return $"{baseClass} bg-gray-50 text-gray-400 cursor-not-allowed";
+        return $"{baseClass} bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed";
     }
 
     private string GetShortName(string fullName)
