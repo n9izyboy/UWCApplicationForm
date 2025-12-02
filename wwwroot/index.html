@@ -47,6 +47,17 @@
         <button class="float-right text-2xl font-bold" onclick="document.getElementById('blazor-error-ui').style.display='none'">&times;</button>
     </div>
 
+    <script>
+        // Handle redirect from 404.html for SPA routing
+        (function(){
+            var redirect = sessionStorage.redirect;
+            delete sessionStorage.redirect;
+            if (redirect && redirect != location.href) {
+                history.replaceState(null, null, redirect);
+            }
+        })();
+    </script>
+
     <script src="_framework/blazor.webassembly.js"></script>
     
     <!-- TypeScript compiled modules -->
