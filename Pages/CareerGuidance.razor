@@ -52,7 +52,7 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Education Level</label>
                     <select 
                         @bind="studentProfile.CurrentLevel"
-                        @onchange="OnEducationLevelChanged"
+                        @bind:after="OnEducationLevelChanged"
                         class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:border-uwc-gold focus:ring-2 focus:ring-uwc-gold bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         <option value="@EducationLevel.PrimarySchool">Primary School (Grade 4-7)</option>
                         <option value="@EducationLevel.HighSchool">High School (Grade 8-12)</option>
@@ -115,7 +115,7 @@
                             <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Subject Name</label>
                             <select 
                                 @bind="subject.SubjectName"
-                                @onchange="(e) => OnSubjectNameChanged(index, e.Value?.ToString())"
+                                @bind:after="() => OnSubjectNameChanged(index, subject.SubjectName)"
                                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-uwc-gold bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                                 <option value="">Select subject...</option>
                                 @foreach (var subj in availableSubjects)
@@ -316,7 +316,7 @@
                 : subjectsByGrade["Grade 4-7"];
     }
 
-    private void OnEducationLevelChanged(ChangeEventArgs e)
+    private void OnEducationLevelChanged()
     {
         LoadAvailableSubjects();
         studentProfile.Subjects.Clear();
