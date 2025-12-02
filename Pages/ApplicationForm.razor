@@ -1,6 +1,7 @@
 @page "/"
 @inject FormStateService FormState
 @inject IJSRuntime JS
+@inject NavigationManager Navigation
 @implements IDisposable
 
 <PageTitle>UWC Application Form</PageTitle>
@@ -25,12 +26,12 @@
                 <h3 class="text-xl font-bold mb-2">🎯 Not Sure What to Study?</h3>
                 <p class="text-sm md:text-base opacity-90">Discover career paths that match your academic strengths and interests!</p>
             </div>
-            <a href="/career-guidance" class="btn-submit ml-4 whitespace-nowrap">
+            <button @onclick='() => Navigation.NavigateTo("/career-guidance")' class="btn-submit ml-4 whitespace-nowrap">
                 Explore Careers
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
-            </a>
+            </button>
         </div>
     </div>
 </div>

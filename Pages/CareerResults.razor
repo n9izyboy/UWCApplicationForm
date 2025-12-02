@@ -2,6 +2,7 @@
 @using UWCApplicationForm.Models
 @using UWCApplicationForm.Services
 @using UWCApplicationForm.Components
+@using UWCApplicationForm.Layout
 @inject NavigationManager Navigation
 @inject CareerGuidanceStateService StateService
 
@@ -10,7 +11,8 @@
 <!-- Header -->
 <HeaderSection 
     ApplicantName="@StateService.CurrentProfile?.StudentName"
-    ShowCloseButton="false" />
+    ShowCloseButton="false"
+    OnDarkModeChanged="HandleDarkModeChanged" />
 
 <div class="container mx-auto px-4 py-8 max-w-7xl">
     
@@ -233,4 +235,15 @@
         // Trigger browser print dialog
         // JavaScript interop could be added here if needed
     }
+
+    private void HandleDarkModeChanged(bool isDarkMode)
+    {
+        if (Layout is MainLayout mainLayout)
+        {
+            mainLayout.SetDarkMode(isDarkMode);
+        }
+    }
+
+    [CascadingParameter]
+    public MainLayout? Layout { get; set; }
 }
