@@ -1,12 +1,12 @@
 @* Form Section Container with Transitions *@
 
 <div class="@GetContainerClass()" id="section-container-@SectionIndex">
-    <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8 transition-smooth">
         <div class="mb-6">
-            <h2 class="text-2xl font-bold text-uwc-navy mb-2">@Title</h2>
+            <h2 class="text-2xl font-bold text-uwc-navy dark:text-uwc-gold mb-2">@Title</h2>
             @if (!string.IsNullOrEmpty(Description))
             {
-                <p class="text-gray-600">@Description</p>
+                <p class="text-gray-600 dark:text-gray-300">@Description</p>
             }
         </div>
 

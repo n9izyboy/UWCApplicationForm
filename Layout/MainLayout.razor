@@ -1,5 +1,22 @@
 @inherits LayoutComponentBase
 
-<div class="min-h-screen bg-gray-50">
-    @Body
-</div>
+<CascadingValue Value="this">
+    <div class="@GetLayoutClasses()">
+        @Body
+    </div>
+</CascadingValue>
+
+@code {
+    private bool IsDarkMode { get; set; } = false;
+
+    private string GetLayoutClasses()
+    {
+        return IsDarkMode ? "min-h-screen bg-gray-50 dark" : "min-h-screen bg-gray-50";
+    }
+
+    public void SetDarkMode(bool isDarkMode)
+    {
+        IsDarkMode = isDarkMode;
+        StateHasChanged();
+    }
+}

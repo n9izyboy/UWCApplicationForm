@@ -1,6 +1,7 @@
 @page "/"
 @inject FormStateService FormState
 @inject IJSRuntime JS
+@inject NavigationManager Navigation
 @implements IDisposable
 
 <PageTitle>UWC Application Form</PageTitle>
@@ -9,15 +10,34 @@
 <HeaderSection 
     ApplicantName="@GetApplicantName()"
     ShowCloseButton="true"
-    OnClose="HandleClose" />
+    OnClose="HandleClose"
+    OnDarkModeChanged="HandleDarkModeChanged" />
 
 <!-- Banner -->
 <BannerComponent 
     Title="Your Future Starts Here - Apply to UWC"
     Message="Complete your application today and take the first step towards excellence" />
 
+<!-- Career Guidance Callout -->
+<div class="container mx-auto px-4 pt-6 max-w-4xl">
+    <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg p-6 shadow-lg text-white mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex-1">
+                <h3 class="text-xl font-bold mb-2">🎯 Not Sure What to Study?</h3>
+                <p class="text-sm md:text-base opacity-90">Discover career paths that match your academic strengths and interests!</p>
+            </div>
+            <button @onclick='() => Navigation.NavigateTo("/career-guidance")' class="btn-submit ml-4 whitespace-nowrap">
+                Explore Careers
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Main Container -->
-<div class="container mx-auto px-4 py-8 max-w-4xl">
+<div class="container mx-auto px-4 pb-8 max-w-4xl">
     
     <!-- Progress Indicator -->
     <ProgressIndicator 
@@ -921,6 +941,18 @@
         }
         // Navigate away or show confirmation dialog
     }
+
+    private async Task HandleDarkModeChanged(bool isDarkMode)
+    {
+        // Update the layout dark mode class
+        if (Layout is MainLayout mainLayout)
+        {
+            mainLayout.SetDarkMode(isDarkMode);
+        }
+    }
+
+    [CascadingParameter]
+    public MainLayout? Layout { get; set; }
 
     private void UpdateApplicationType(string type)
     {

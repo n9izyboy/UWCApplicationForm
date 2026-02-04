@@ -13,7 +13,7 @@
     },
     "typescript.tsdk": "node_modules/typescript/lib",
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": null,
     "[csharp]": {
       "editor.defaultFormatter": "ms-dotnettools.csharp"
     },

@@ -1,20 +1,20 @@
 @* Progress Indicator Component *@
 
-<div class="bg-white shadow-md rounded-lg p-6 mb-6">
+<div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 mb-6 transition-smooth">
     <div class="flex items-center justify-between mb-4">
         <div>
-            <h3 class="text-lg font-semibold text-uwc-navy">Application Progress</h3>
-            <p class="text-sm text-gray-600">Section @(CurrentSection + 1) of @TotalSections</p>
+            <h3 class="text-lg font-semibold text-uwc-navy dark:text-uwc-gold">Application Progress</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Section @(CurrentSection + 1) of @TotalSections</p>
         </div>
         <div class="text-right">
-            <p class="text-2xl font-bold text-uwc-gold">@CompletionPercentage%</p>
-            <p class="text-xs text-gray-600">Complete</p>
+            <p class="text-2xl font-bold text-uwc-gold gold-glow">@CompletionPercentage%</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400">Complete</p>
         </div>
     </div>
 
     <!-- Progress Bar -->
     <div class="progress-bar mb-4">
-        <div class="progress-bar-fill" style="width: @(CompletionPercentage)%"></div>
+        <div class="progress-bar-fill gold-glow" style="width: @(CompletionPercentage)%"></div>
     </div>
 
     <!-- Progress Dots -->
@@ -35,7 +35,7 @@
     @if (ShowSectionNames)
     {
         <div class="mt-4 text-center">
-            <p class="text-sm font-medium text-gray-700">@SectionNames[CurrentSection]</p>
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">@SectionNames[CurrentSection]</p>
         </div>
     }
 
@@ -43,7 +43,7 @@
     @if (!string.IsNullOrEmpty(LastSavedText))
     {
         <div class="mt-4 text-center">
-            <p class="text-xs text-gray-500">
+            <p class="text-xs text-gray-500 dark:text-gray-400">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>

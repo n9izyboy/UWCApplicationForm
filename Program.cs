@@ -11,5 +11,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 // Register application services
 builder.Services.AddScoped<FormStateService>();
+builder.Services.AddScoped<CareerMatchingService>();
+builder.Services.AddScoped<CareerGuidanceStateService>();
 
 await builder.Build().RunAsync();
